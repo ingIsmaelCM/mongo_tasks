@@ -3,34 +3,45 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import SubtaskDto from 'src/dtos/subtask.dto';
 import { Subtask } from 'src/schemas/subtask.schema';
+import { ObjectId } from 'mongodb';
+import { MongoConnection } from 'src/database/mongo.connection';
+import { Task } from 'src/schemas/task.schema';
 
 @Injectable()
 export class SubtaskService {
-    constructor (
+    protected readonly db: MongoConnection;
+    constructor(
         @InjectModel(Subtask.name) protected readonly subtaskModel: Model<Subtask>
-    ){
-
+    ) {
+        this.db = MongoConnection.getInstance();
     }
 
-    async createSubtask(taskId: string, subtask: SubtaskDto){
-        const newSubtask = {
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            ...subtask,
-            taskId: taskId
+    async createSubtask(taskId: string, subtask: SubtaskDto) {
+        const subTasks = [];
+        const tasks: Array<string> = (await this.db.findData<Task>('tasks')).map(task => task._id as string);
+        for (let i = 0; i < 15000; i++) {
+            const newSubtask = {
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                name: `Subtask ${i+1}`,
+                description: `Subtask ${i+1} description`,
+                taskId: new ObjectId(tasks[Math.floor(Math.random() * tasks.length)])
+            }
+            const newTask = await this.db.insertData<Subtask>('subtasks', newSubtask as unknown as Subtask);
+            subTasks.push(newTask);
         }
-        return new this.subtaskModel(newSubtask).save();
+        return subTasks;
     }
 
 
-    async getAllSubtasks(taskId?: string){
-       if(taskId){
-           return await this.subtaskModel.find({taskId: taskId});
-       }
-       return await this.subtaskModel.find();
+    async getAllSubtasks(taskId?: string) {
+        if (taskId) {
+            return await this.subtaskModel.find({ taskId: taskId });
+        }
+        return await this.db.findData<Subtask>("subtasks");
     }
 
-    async getSubtaskById(id: string){
+    async getSubtaskById(id: string) {
         try {
             return await this.subtaskModel.findById(id);
         } catch (error) {
@@ -38,11 +49,11 @@ export class SubtaskService {
         }
     }
 
-    async updateSubtask(id: string, subtask: SubtaskDto){
+    async updateSubtask(id: string, subtask: SubtaskDto) {
         return await this.subtaskModel.findByIdAndUpdate(id, subtask);
     }
 
-    async deleteSubtask(id: string){
+    async deleteSubtask(id: string) {
         return await this.subtaskModel.findByIdAndDelete(id);
     }
 }

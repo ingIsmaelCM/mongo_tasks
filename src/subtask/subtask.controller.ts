@@ -1,23 +1,28 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { SubtaskService } from './subtask.service';
-import { ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
 import SubtaskDto from 'src/dtos/subtask.dto';
+import fetchData from 'src/fetch.data'
 
 @Controller('subtasks')
 export class SubtaskController {
     constructor(
         protected readonly subtaskService: SubtaskService
-    ) { }
+    ) { 
+      
+    }
 
-    @ApiParam({ name: 'id', type: String, required: false })
-    @Get("tasks/:id?")
-    async getAllSubtasks(@Param('id') id?: string) {
+    @ApiQuery({ name: 'taskId', type: String, required: false })
+    @Get()
+    async getAllSubtasks(@Query('taskId') id?: string) {
+        
         return await this.subtaskService.getAllSubtasks(id);
     }
 
     @ApiParam({ name: 'id', type: String, required: true })
     @Get(":id")
     async getSubtaskById(@Param('id') id: string) {
+        fetchData()
         return await this.subtaskService.getSubtaskById(id);
     }
 

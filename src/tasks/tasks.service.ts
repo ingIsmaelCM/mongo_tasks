@@ -28,12 +28,7 @@ export class TasksService {
     async getAllTasks(includeSubtasks: boolean = false) {
         if (includeSubtasks) {
             return this.db.findData<Task>('tasks', {}, [
-                {
-                    from: 'Subtask',
-                    localField: '_id',
-                    foreignField: 'taskId',
-                    as: 'subtasks'
-                }
+                Task.getSubtasks()
             ]);
         }
         return await this.db.findData<Task>('tasks');

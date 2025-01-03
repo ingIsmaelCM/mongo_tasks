@@ -31,8 +31,9 @@ export class MongoConnection {
         return await collection.insertOne(data);
     }
 
-    async findData<T>(collectionName: string, query?: Filter<T>, relations?: Lookup[]): Promise<T[]> {
+    async findData<T>(collectionName: string, query: Filter<T>={}, relations?: Lookup[]): Promise<T[]> {
         const collection = this.client.db().collection(collectionName);
+        const {skip=0, limit=100} = query;
         if(relations && relations.length > 0){
             return await collection.aggregate([
                 {$match: query},
@@ -41,10 +42,14 @@ export class MongoConnection {
                        from: relation.from,
                        localField: relation.localField||'_id',
                        foreignField: relation.foreignField,
-                       as: relation.as
+                       as: relation.as,
+                       pipeline: [
+                           {$limit: 100}
+                       ]
+                       
                    }}
                })
-            ]).toArray() as T[];
+            ]).skip(skip).limit(limit).toArray() as T[];
         }
         return await collection.find(query).toArray() as T[];
     }

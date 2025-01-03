@@ -2,8 +2,9 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {Document, Types} from 'mongoose';
 import { Subtask,  } from './subtask.schema';
+import { Lookup } from 'src/types/database';
 
-@Schema()
+@Schema({collection: 'tasks'})
 export class Task extends Document{
 
 
@@ -30,6 +31,15 @@ export class Task extends Document{
 
   @Prop({type: [Types.ObjectId], ref: Subtask.name})
   subtasks: Types.Array<Subtask>;
+
+  static getSubtasks(): Lookup {
+    return {
+      from: 'subtasks',
+      localField: '_id',
+      foreignField: 'taskId',
+      as: 'subtasks'
+    }
+  }
 }
 
 

@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
+import { ObjectId } from "mongodb";
 
 
-@Schema()
+@Schema({collection: 'subtasks'})
 export class Subtask extends Document {
 
     
@@ -14,7 +15,7 @@ export class Subtask extends Document {
     description: string;
 
     @Prop({type: Types.ObjectId, ref: Subtask.name})
-    taskId: string;
+    taskId: ObjectId;
 
 }
 
