@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/
 import { TasksService } from './tasks.service';
 import { ApiBody } from '@nestjs/swagger';
 import TaskDto from 'src/dtos/task.dto';
+import { QueryParams } from 'src/types/query.params';
 
 @Controller('tasks')
 export class TasksController {
@@ -10,8 +11,8 @@ export class TasksController {
     ) {}
 
     @Get()
-    async getAllTasks(@Query('includeSubtasks') includeSubtasks: boolean = false){
-        return await this.tasksService.getAllTasks(includeSubtasks);
+    async getAllTasks(@Query('includeSubtasks') includeSubtasks: boolean = false, @Query() query: QueryParams){
+        return await this.tasksService.getAllTasks(includeSubtasks, query);
     }
     @Get(':id')
     async getTaskById(@Param('id') id: string){

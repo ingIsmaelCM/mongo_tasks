@@ -5,6 +5,7 @@ import { MongoConnection } from 'src/database/mongo.connection';
 import TaskDto from 'src/dtos/task.dto';
 import { Subtask } from 'src/schemas/subtask.schema';
 import { Task } from 'src/schemas/task.schema';
+import { QueryParams } from 'src/types/query.params';
 
 @Injectable()
 export class TasksService {
@@ -25,13 +26,13 @@ export class TasksService {
         return new this.taskModel(newTask).save();
     }
 
-    async getAllTasks(includeSubtasks: boolean = false) {
+    async getAllTasks(includeSubtasks: boolean = false, query: QueryParams) {
         if (includeSubtasks) {
-            return this.db.findData<Task>('tasks', {}, [
+            return this.db.findData<Task>('tasks', query, [
                 Task.getSubtasks()
             ]);
         }
-        return await this.db.findData<Task>('tasks');
+        return await this.db.findData<Task>('tasks', query);
     }
 
     async getTaskById(id: string) {

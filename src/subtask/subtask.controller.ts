@@ -3,6 +3,7 @@ import { SubtaskService } from './subtask.service';
 import { ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
 import SubtaskDto from 'src/dtos/subtask.dto';
 import fetchData from 'src/fetch.data'
+import { QueryParams } from 'src/types/query.params';
 
 @Controller('subtasks')
 export class SubtaskController {
@@ -12,17 +13,14 @@ export class SubtaskController {
       
     }
 
-    @ApiQuery({ name: 'taskId', type: String, required: false })
     @Get()
-    async getAllSubtasks(@Query('taskId') id?: string) {
-        
-        return await this.subtaskService.getAllSubtasks(id);
+    async getAllSubtasks(@Query() query: QueryParams) {
+        return await this.subtaskService.getAllSubtasks(query);
     }
 
     @ApiParam({ name: 'id', type: String, required: true })
     @Get(":id")
     async getSubtaskById(@Param('id') id: string) {
-        fetchData()
         return await this.subtaskService.getSubtaskById(id);
     }
 

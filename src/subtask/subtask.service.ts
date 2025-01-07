@@ -6,6 +6,7 @@ import { Subtask } from 'src/schemas/subtask.schema';
 import { ObjectId } from 'mongodb';
 import { MongoConnection } from 'src/database/mongo.connection';
 import { Task } from 'src/schemas/task.schema';
+import { QueryParams } from 'src/types/query.params';
 
 @Injectable()
 export class SubtaskService {
@@ -18,13 +19,13 @@ export class SubtaskService {
 
     async createSubtask(taskId: string, subtask: SubtaskDto) {
         const subTasks = [];
-        const tasks: Array<string> = (await this.db.findData<Task>('tasks')).map(task => task._id as string);
+        const tasks: Array<string> = (await this.db.findData<Task>('tasks')).rows.map(task => task._id as string);
         for (let i = 0; i < 15000; i++) {
             const newSubtask = {
                 createdAt: new Date(),
                 updatedAt: new Date(),
-                name: `Subtask ${i+1}`,
-                description: `Subtask ${i+1} description`,
+                name: `Subtask ${i + 1}`,
+                description: `Subtask ${i + 1} description`,
                 taskId: new ObjectId(tasks[Math.floor(Math.random() * tasks.length)])
             }
             const newTask = await this.db.insertData<Subtask>('subtasks', newSubtask as unknown as Subtask);
@@ -34,11 +35,8 @@ export class SubtaskService {
     }
 
 
-    async getAllSubtasks(taskId?: string) {
-        if (taskId) {
-            return await this.subtaskModel.find({ taskId: taskId });
-        }
-        return await this.db.findData<Subtask>("subtasks");
+    async getAllSubtasks(query: QueryParams) {
+        return await this.db.findData<Subtask>("subtasks", query);
     }
 
     async getSubtaskById(id: string) {
